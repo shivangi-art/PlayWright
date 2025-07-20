@@ -1,0 +1,23 @@
+# .gitpod.yml
+image:
+  file: .gitpod.Dockerfile
+
+tasks:
+  - name: Setup
+    init: |
+      # Install dependencies
+      npm install
+      npx playwright install
+    command: |
+      # Run tests (optional)
+      npx playwright test
+
+ports:
+  - port: 3000
+    onOpen: ignore
+
+vscode:
+  extensions:
+    - ms-playwright.playwright
+    - dbaeumer.vscode-eslint
+    - esbenp.prettier-vscode
