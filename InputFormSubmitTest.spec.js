@@ -3,8 +3,6 @@ import { test, expect } from '@playwright/test';
 import { chromium } from 'playwright';
 
 test('Test Scenario 3 - Input Form Submit Validation and Submission', async () => {
-    //test.setTimeout(60000); // sets timeout to 60 seconds for this test
-
   const capabilities = {
     browserName: 'Chrome',
     browserVersion: 'latest',
@@ -23,33 +21,29 @@ test('Test Scenario 3 - Input Form Submit Validation and Submission', async () =
   const wsEndpoint = `wss://cdp.lambdatest.com/playwright?capabilities=${encodeURIComponent(JSON.stringify(capabilities))}`;
   const browser = await chromium.connect({ wsEndpoint });
   const context = await browser.newContext();
-  const page = await context.newPage();
 
+  const page = await context.newPage();
   await page.goto('https://www.lambdatest.com/selenium-playground');
   await page.click('a:has-text("Input Form Submit")');
-  //await page.waitForLoadState('domcontentloaded');
-  //await expect(page.locator('form#seleniumform')).toBeVisible(); // waits until the form is ready
+ 
+  await page.waitForSelector('form#seleniumform');
+  const submitButton = page.locator('form#seleniumform button.selenium_btn:has-text("Submit")');
+  await submitButton.click('form#seleniumform button.selenium_btn:has-text("Submit")');
 
-
-  //await page.click('button[type="submit"]');
-  //await page.locator('button[type="submit"]').first().click();
-
-
-
-
-  // 3. Assert validation error is visible
-  //const errorMessage = await page.locator('small:has-text("Please fill out this field.")').first();
-  //await expect(errorMessage).toBeVisible();
+ //Assert validation error is visible
+  const errorMessage = await page.$eval('input[name="name"]', el => el.matches(':invalid'));
+  console.log('Is name field invalid:', errorMessage);
 
   await page.evaluate(() => {
-  const scrollBox = document.querySelector('button[type="submit"]');
-  scrollBox.scrollTop = scrollBox.scrollHeight;
+  const nameField = document.querySelector('input[name="name"]');
+  if (nameField) {
+    nameField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
 });
-
 
   // 4. Fill in form fields
   await page.fill('input[name="name"]', 'John Doe');
-  await page.locator('input[name="email"]', 'john@example.com');
+  await page.fill('input[id="inputEmail4"]', 'john@example.com');
   await page.fill('input[name="password"]', 'securepassword123');
   await page.fill('input[name="company"]', 'OpenAI');
   await page.fill('input[name="website"]', 'https://openai.com');
@@ -57,11 +51,11 @@ test('Test Scenario 3 - Input Form Submit Validation and Submission', async () =
   await page.fill('input[name="city"]', 'New York');
   await page.fill('input[name="address_line1"]', '123 AI Street');
   await page.fill('input[name="address_line2"]', 'Suite 101');
-  await page.fill('input[name="State"]', 'NY');
-  await page.fill('input[name="zip"]', '10001');
+  await page.fill('input[id="inputState"]', 'NY');
+  await page.fill('input[id="inputZip"]', '10001');
 
   // 6. Submit form
-  await page.click('button[type="submit"]');
+  await submitButton.click('form#seleniumform button.selenium_btn:has-text("Submit")');
 
   // 7. Validate success message
   const successMsg = page.locator('p:has-text("Thanks for contacting us, we will get back to you shortly.")');
